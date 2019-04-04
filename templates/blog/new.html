@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load blog_tags %}
+{% block main %}
+    <form class="form-horizontal" method="post" action="./">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="col-lg-11">
+            <input type="text" class="form-control input-lg" name="title" onfocus="" placeholder="博客标题">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-lg-11">
+            <textarea class="form-control" rows="30" cols="20" name="content" placeholder="博客内容"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            {% get_categories as category_list %}
+            <label class="col-lg-1 control-label">分类</label>
+            <div class="col-lg-3">
+                <select name="category" class="form-control">
+                    {% for category in category_list %}
+                    <option value="{{ category.name }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add_category_modal">+</button>
+            </div>
+        </div>
+        <div class="form-group">
+            {% get_tags as tag_list %}
+            <label class="col-lg-1 control-label">标签</label>
+            <div class="col-lg-9">
+                {% for tag in tag_list %}
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="tags" value="{{ tag.name }}">{{ tag.name }}
+                </label>
+                {% endfor %}
+            </div>
+            <div>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#add_tag_modal">+</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-9 col-sm-2">
+                <input type="submit" class="form-control" value="保存">
+            </div>
+        </div>
+    </form>
+    <div class="modal fade" id="add_category_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form class="form-horizontal" method="post" action="../add/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="col-lg-12">
+                                <input type="text" class="form-control input-lg"  name="category" id="new_category" placeholder="新分类">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-9 col-sm-4">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <input type="submit" class="btn btn-default" id="add_category_btn" value="提交">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add_tag_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <form class="form-horizontal" method="post" action="../add/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="col-lg-12">
+                                <input type="text" class="form-control input-lg"  name="tag" id="new_tag" placeholder="新标签">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-9 col-sm-4">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <input type="submit" class="btn btn-default" id="add_tag_btn" value="提交">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock main %}
+{% block toc %}
+    <div class="widget widget-content">
+        <h3 class="widget-title">文章目录</h3>
+        {{ post.toc|safe }}
+    </div>
+{% endblock toc %}

@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from blog.feeds import AllPostsRssFeed
+from .views import login
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^login/$', view=login, name='login'),
     url(r'', include('blog.urls')),
     url(r'', include('comments.urls')),
     url(r'^robots\.txt$', lambda r: HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')),

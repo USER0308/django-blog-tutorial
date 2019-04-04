@@ -6,6 +6,10 @@ from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.utils.text import slugify
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from comments.forms import CommentForm
 from .models import Post, Category, Tag
@@ -313,3 +317,57 @@ def search(request):
     return render(request, 'blog/index.html', {'error_msg': error_msg,
                                                'post_list': post_list})
 """
+
+
+class NewPostView(DetailView):
+    model = Post
+    template_name = 'blog/new.html'
+    context_object_name = 'post'
+
+    @method_decorator(login_required(login_url='login'))
+    def post(self, request):
+        title = request.POST.get('title')
+        print(title)
+        content = request.POST.get('content')
+        print(content)
+        cate = request.POST.get('category')
+        print(cate)
+        category, is_create = Category.objects.get_or_create(name=cate)
+        author = request.user
+        p = Post(title=title, body=content, category=category, author=author)
+        p.save()
+        tags = request.POST.getlist('tags')
+        print(tags)
+        for tag in tags:
+            t, is_create = Tag.objects.get_or_create(name=tag)
+            p.tags.add(t)
+
+        return HttpResponse("all good")
+        # get args from request
+        # create a object
+        # save()
+
+    def get(self, request, *args, **kwargs):
+        return render(request, template_name=self.template_name)
+
+@login_required(login_url='login')
+def add(request):
+    if request.method == 'POST':
+        tag = request.POST.get('tag', None)
+        category = request.POST.get('category', None)
+        print(tag)
+        print(category)
+        if tag:
+            t, is_create = Tag.objects.get_or_create(name=tag)
+            if is_create:
+                print(t)
+                return HttpResponse('create tag {} successfully'.format(tag))
+            else:
+                return HttpResponse('tag {} already exists'.format(tag))
+
+        if category:
+            c, is_create = Category.objects.get_or_create(name=category)
+            if is_create:
+                return HttpResponse('create category {} successfully'.format(category))
+            else:
+                return HttpResponse('category already {} exists'.format(category))
